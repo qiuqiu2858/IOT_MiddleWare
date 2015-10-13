@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <sstream>
+#include <iostream>
 
 #define default_port 8000
 #define MAXLINE 4096
