@@ -60,17 +60,17 @@ int main(int argc, char** argv)
     }
     if( cnt == 1 ) {
       connect_fd_2 = accept(socket_fd, (struct sockaddr*)&clientaddr_2, &clientaddrlen_2);
-      string client1_ip = inet_ntoa(clientaddr_1.sin_addr);
-      string client1_port = Int2String(clientaddr_1.sin_port);
-      string res1 = client1_ip + ':' + client1_port;
+      char* res1 = new char[sizeof(clientaddr_1)];      
+      char* res2 = new char[sizeof(clientaddr_2)];
+      memset(res1,0,sizeof(res1));
+      memset(res2,0,sizeof(res2));
+      memcpy(res1,&clientaddr_1,sizeof(res1));
+      memcpy(res2,&clientaddr_2,sizeof(res2));
       
-      string client2_ip = inet_ntoa(clientaddr_2.sin_addr);
-      string client2_port = Int2String(clientaddr_2.sin_port);
-      string res2 = client2_ip + ':' + client2_port;
 
-      if( send(connect_fd_1, res1.c_str(),strlen(res1.c_str()),0) == -1 )
+      if( send(connect_fd_1, res2,sizeof(res2),0) == -1 )
 	perror("send error");
-      if( send(connect_fd_2, res2.c_str(),strlen(res2.c_str()),0) == -1 )
+      if( send(connect_fd_2, res1,sizeof(res1),0) == -1 )
         perror("send error");
     }
     //if( connect_fd == -1 ) {
