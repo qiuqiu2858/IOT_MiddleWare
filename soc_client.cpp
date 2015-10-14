@@ -120,7 +120,7 @@ int main(int argc, char** argv)
     memcpy(&rec_addr,buf,sizeof(rec_addr));
     printf("Received : the remote ip is %s ,the remote port is %d\n",inet_ntoa(rec_addr.sin_addr),htons(rec_addr.sin_port));
     
-
+    
     // is a server, handle with the clients' request
     if( server_or_client == 0 ) {
       printf("server is listening!\n");
@@ -134,6 +134,23 @@ int main(int argc, char** argv)
 	perror("send error");
       }
       printf("server sended data already\n");
+      close(sockfd);
+      printf("has disconnected from Server Main\n");
+      while(true) {
+	if((rec_len = recv(client_fd, buf, MAXLINE,0)) == -1) {
+	  perror("recv error");
+	  exit(1);  
+	}  
+	buf[rec_len]  = '\0';
+	printf("Received data from remote client: %s\n",buf);
+	char replytext[4096];
+	strcpy(replytext,"I have received your message:");
+	strcat(replytext,buf);
+        if( send(client_fd,replytext,strlen(replytext),0) == -1 ) {
+	  perror("send error");
+	}
+	memset(buf,0,sizeof(buf));
+      }
     }
     
     // is a client, connect the new socket
@@ -155,13 +172,30 @@ int main(int argc, char** argv)
         exit(1);
       }
       printf("Received data from Server 1: %s\n",buf);
-      
-      
+      close(sockfd);
+      printf("has disconnected from Server Main\n");
+      while(true) {
+	fgets(sendline,4096,stdin);
+	if( send(remote_sock_fd, sendline, strlen(sendline),0) < 0 ) {
+	  printf("send msg error: %s(errno: %d)\n", strerror(errno), errno);
+	  exit(0);
+	}
+	if((rec_len = recv(remote_sock_fd,buf,MAXLINE,0)) == -1) {
+	  perror("recv error");
+	  exit(1);
+	}
+	buf[rec_len] = '\0';
+	printf("Received data from remote server: %s\n", buf);
+	memset(sendline,0,sizeof(sendline));
+	memset(buf,0,sizeof(buf));
+      }
     }
+
+
       
 
 
-
+    /*
     while( strcmp(sendline,q) != 0 ) {
       printf("sending msg to server!\n");  
       if( send(sockfd, sendline, strlen(sendline), 0) < 0)  
@@ -184,4 +218,5 @@ int main(int argc, char** argv)
     printf("getting here!!");
     close(sockfd);
     exit(0);
+    */
 }  
